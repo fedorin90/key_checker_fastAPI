@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Env
+.env
+.env.local
+
+# cerbot
+certbot/
+
+# Node
+node_modules/
+build/
+dist/
+
+# Docker
+/postgres_data/
+*.pid
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
