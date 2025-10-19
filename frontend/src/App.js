@@ -10,8 +10,8 @@ import Register from './components/User/Register'
 import VerifyEmail from './components/User/VerifyEmail'
 import Profile from './components/User/Profile'
 import ResendActivation from './components/User/ResendActivation'
-// import TermsAndConditions from './components/TermsAndConditions'
-// import PasswordReset from './components/User/PasswordReset'
+import TermsAndConditions from './components/TermsAndConditions'
+import PasswordReset from './components/User/PasswordReset'
 // import KeysCheck from './components/KeysCheck/KeysCheck'
 // import MSManage from './components/KeysCheck/MSManage'
 // import Proxies from './components/KeysCheck/Proxies'
@@ -41,14 +41,11 @@ function App() {
             path="/auth/resend-activation/"
             element={<ResendActivation />}
           />
-          {/* <Route
-            path="/password-reset/:uid/:token/"
-            element={<PasswordReset />}
-          />
+          <Route path="/password-reset/:token/" element={<PasswordReset />} />
           <Route
             path="/terms-and-conditions"
             element={<TermsAndConditions />}
-          /> */}
+          />
         </Routes>
         <ToastContainer hideProgressBar position="top-center" />
       </AuthProvider>

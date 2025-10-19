@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 import { validatePassword } from '../../utils/validate'
 
 const PasswordReset = () => {
-  const { uid, token } = useParams()
+  const { token } = useParams()
   const [newPassword, setNewPassword] = useState('')
   const [reNewPassword, setReNewPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -24,8 +24,7 @@ const PasswordReset = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await api.post('auth/users/reset_password_confirm/', {
-        uid,
+      const response = await api.post('auth/reset-password/', {
         token,
         new_password: newPassword,
         re_new_password: reNewPassword,

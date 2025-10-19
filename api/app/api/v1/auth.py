@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.user import UserCreate, UserOut, TokenOut, GoogleAuthIn, LoginIn
+from app.schemas.user import UserCreate, UserOut, TokenOut, GoogleAuthIn, LoginIn, PasswordResetIn
 from app.crud import user as crud_user
 from app.core.config import settings
-from app.core.security import create_access_token, create_activation_token
+from app.core.security import create_access_token, create_activation_token, create_reset_token, verify_reset_token
 from app.core.db import get_db
 from app.models.user import User
-from app.utils.email_utils import send_activation_email
+from app.utils.email_utils import send_activation_email, send_password_reset_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -132,3 +132,36 @@ async def resend_activation(request: Request, db: AsyncSession = Depends(get_db)
     send_activation_email(email, token)
 
     return {"message": "New activation link sent to your email."}
+
+
+#========== PASSWORD RESET REQUEST ==========
+@router.post("/request-password-reset/")
+async def request_password_reset(request: Request, db: AsyncSession = Depends(get_db)):
+    data = await request.json()
+    email = data.get("email")
+
+    user = await crud_user.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    token = create_reset_token(email)
+    await send_password_reset_email(email, token)
+
+    return {"message": "Password reset link sent to your email."}
+
+
+#========== PASSWORD RESET ==========
+@router.post("/reset-password/")
+async def reset_password(data: PasswordResetIn, db: AsyncSession = Depends(get_db)):
+    email = verify_reset_token(data.token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    user = await crud_user.get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    hashed_password = crud_user.get_password_hash(data.new_password)
+    await crud_user.update_user_password(db, user, hashed_password)
+
+    return {"message": "Password has been reset successfully."}

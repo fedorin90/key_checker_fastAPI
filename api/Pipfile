@@ -4,11 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "0.117.1"
-pydantic-settings = "2.10.1"
 sqlalchemy = "*"
 uvicorn = "*"
-pydantic = {extras = ["email"], version = "*"}
 alembic = "*"
 python-dotenv = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
@@ -16,6 +13,10 @@ requests = "*"
 python-multipart = "*"
 bcrypt = "<4.0"
 passlib = {extras = ["bcrypt"], version = ">=1.7.4"}
+fastapi = ">=0.115"
+fastapi-mail = "1.4.1"
+pydantic = "2.11.0"
+pydantic-settings = "2.11.0"
 
 [dev-packages]
 

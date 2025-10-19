@@ -36,3 +36,17 @@ class GoogleAuthIn(BaseModel):
 class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class PasswordResetIn(BaseModel):
+    token: str
+    new_password: str
+    re_new_password: str
+
+    @field_validator("re_new_password")
+    @classmethod
+    def passwords_match(cls, v, info):
+        password = info.data.get("new_password")
+        if password and v != password:
+            raise ValueError("Passwords do not match")
+        return v

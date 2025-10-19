@@ -16,7 +16,9 @@ class Settings(BaseSettings):
 
     EMAIL_HOST: str = "smtp.gmail.com"
     EMAIL_PORT: int = 587
+    EMAIL_FROM: str
     EMAIL_USE_TLS: bool = True
+    EMAIL_USE_SSL: bool = False
     EMAIL_HOST_USER: str
     EMAIL_HOST_PASSWORD: str
 

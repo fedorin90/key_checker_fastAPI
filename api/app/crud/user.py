@@ -50,3 +50,15 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
     if not pwd_context.verify(password, user.hashed_password):
         return None
     return user
+
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+async def update_user_password(db: AsyncSession, user: User, hashed_password: str):
+    user.hashed_password = hashed_password
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user

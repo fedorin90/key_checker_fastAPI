@@ -9,7 +9,7 @@ const Profile = () => {
 
   const handlePasswordReset = async () => {
     try {
-      await api.post('auth/users/reset_password/', { email: user.email })
+      await api.post('auth/request-password-reset/', { email: user.email })
       toast.info(
         'We have sent you an email with the link to reset your password.'
       )
