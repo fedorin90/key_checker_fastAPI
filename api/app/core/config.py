@@ -28,5 +28,8 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
 
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+
 
 settings = Settings()

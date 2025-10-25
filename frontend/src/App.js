@@ -14,7 +14,7 @@ import TermsAndConditions from './components/TermsAndConditions'
 import PasswordReset from './components/User/PasswordReset'
 // import KeysCheck from './components/KeysCheck/KeysCheck'
 // import MSManage from './components/KeysCheck/MSManage'
-// import Proxies from './components/KeysCheck/Proxies'
+import Proxies from './components/KeysCheck/Proxies'
 
 function App() {
   return (
@@ -27,11 +27,11 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             {/* <Route path="/keys-check" element={<KeysCheck />} /> */}
           </Route>
-          {/* Staff urls
-          {/* <Route element={<StaffRoute />}>
-            <Route path="/ms-manage" element={<MSManage />} />
+          {/* Staff urls */}
+          <Route element={<StaffRoute />}>
+            {/* <Route path="/ms-manage" element={<MSManage />} /> */}
             <Route path="/proxies" element={<Proxies />} />
-          </Route> */}
+          </Route>
           {/* public urls */}
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />

@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1 import auth
+from app.api.v1 import auth, task_router, proxy_router
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
 
 app.include_router(auth.router)
+app.include_router(task_router.router)
+app.include_router(proxy_router.router)
 
 app.add_middleware(
     CORSMiddleware,

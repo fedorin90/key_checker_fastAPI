@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Container,
-  Row,
-  Col,
-} from 'react-bootstrap'
+import { Table, Button, Form, Container, Row, Col } from 'react-bootstrap'
 import { api } from '../../api/axios'
 import { useContext } from 'react'
 import AuthContext from '../../context/AuthContext'
@@ -23,13 +15,13 @@ const Proxies = () => {
   const [proxies, setProxies] = useState([])
 
   const loadProxies = async () => {
-    const res = await api.get('keys-checker/proxies/')
+    const res = await api.get('proxies/')
     setProxies(res.data)
   }
 
   const handleAdd = async () => {
     try {
-      await api.post('keys-checker/proxies/', newProxy)
+      await api.post('proxies/', newProxy)
       setNewProxy({ ip: '', port: '', username: '', password: '' })
       loadProxies()
     } catch (err) {
@@ -40,7 +32,7 @@ const Proxies = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Удалить Прокси?')) {
-      await api.delete(`keys-checker/proxies/${id}/`)
+      await api.delete(`proxies/${id}/`)
       loadProxies()
     }
   }
