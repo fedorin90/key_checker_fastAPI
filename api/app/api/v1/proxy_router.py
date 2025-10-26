@@ -22,7 +22,7 @@ async def add_proxy(proxy_data: ProxyCreate, db: AsyncSession = Depends(get_db))
 async def put_proxy(proxy_id: int, proxy_data: ProxyUpdate, db: AsyncSession = Depends(get_db)):
     proxy = await crud_proxy.update_proxy(db, proxy_id, proxy_data)
     if not proxy:
-        raise HTTPException(status_code=404, detail="Прокси не найден")
+        raise HTTPException(status_code=404, detail="Proxy doesn't exist")
     return proxy
 
 
@@ -30,6 +30,6 @@ async def put_proxy(proxy_id: int, proxy_data: ProxyUpdate, db: AsyncSession = D
 async def delete_proxy(proxy_id: int, db: AsyncSession = Depends(get_db)):
     proxy = await crud_proxy.get_proxy_by_id(db, proxy_id)
     if not proxy:
-        raise HTTPException(status_code=404, detail="Прокси не найден")
+        raise HTTPException(status_code=404, detail="Proxy doesn't exist")
     await crud_proxy.delete_proxy(db, proxy_id)
     return None

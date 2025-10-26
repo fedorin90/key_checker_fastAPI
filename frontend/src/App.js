@@ -13,7 +13,7 @@ import ResendActivation from './components/User/ResendActivation'
 import TermsAndConditions from './components/TermsAndConditions'
 import PasswordReset from './components/User/PasswordReset'
 // import KeysCheck from './components/KeysCheck/KeysCheck'
-// import MSManage from './components/KeysCheck/MSManage'
+import MSManage from './components/KeysCheck/MSManage'
 import Proxies from './components/KeysCheck/Proxies'
 
 function App() {
@@ -29,7 +29,7 @@ function App() {
           </Route>
           {/* Staff urls */}
           <Route element={<StaffRoute />}>
-            {/* <Route path="/ms-manage" element={<MSManage />} /> */}
+            <Route path="/ms-manage" element={<MSManage />} />
             <Route path="/proxies" element={<Proxies />} />
           </Route>
           {/* public urls */}

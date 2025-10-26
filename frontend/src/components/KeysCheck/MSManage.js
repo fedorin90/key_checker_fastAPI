@@ -22,14 +22,14 @@ const MSManage = () => {
   const [bulkText, setBulkText] = useState('')
 
   const loadAccounts = async () => {
-    const res = await api.get('keys-checker/ms-accounts/')
+    const res = await api.get('ms_accounts/')
     setAccounts(res.data)
   }
 
   const handleSave = async () => {
     try {
       if (editingId) {
-        await api.put(`keys-checker/ms-accounts/${editingId}/`, form)
+        await api.put(`ms_accounts/${editingId}/`, form)
         setShowModal(false)
         setForm({ email: '', password: '' })
         setEditingId(null)
@@ -42,12 +42,12 @@ const MSManage = () => {
 
   const handleAdd = async () => {
     try {
-      await api.post('keys-checker/ms-accounts/', newAccount)
+      await api.post('ms_accounts/', newAccount)
       setNewAccount({ email: '', password: '', note: '' })
       loadAccounts()
     } catch (err) {
-      console.error(err)
-      alert('Ошибка при добавлении аккаунта')
+      const message = err.response?.data?.detail || 'Ошибка загрузки аккаунтов'
+      alert(message)
     }
   }
 
@@ -55,26 +55,27 @@ const MSManage = () => {
     const lines = bulkText.trim().split('\n')
     const accounts = lines
       .map((line) => {
-        const [email, password] = line.trim().split('\t')
+        // разделяем по любому количеству пробелов или табуляций
+        const [email, password] = line.trim().split(/\s+/)
         if (!email || !password) return null
         return { email, password }
       })
       .filter(Boolean)
 
     try {
-      const res = await api.post('ms-accounts/bulk/', { accounts })
+      const res = await api.post('ms_accounts/bulk/', accounts)
       loadAccounts()
       alert(`Успешно добавлено: ${res.data.length}`)
       setBulkText('')
     } catch (err) {
-      console.error(err)
-      alert('Ошибка загрузки аккаунтов')
+      const message = err.response?.data?.detail || 'Ошибка загрузки аккаунтов'
+      alert(message)
     }
   }
 
   const handleDelete = async (id) => {
     if (window.confirm('Удалить аккаунт?')) {
-      await api.delete(`keys-checker/ms-accounts/${id}/`)
+      await api.delete(`ms_accounts/${id}/`)
       loadAccounts()
     }
   }

@@ -22,4 +22,3 @@ class MSAccount(Base):
 
     def __repr__(self):
         return self.email
-
