@@ -113,31 +113,31 @@ const KeysCheck = () => {
         const res = await fetchLastSessionKeys()
         setValidKeys(res)
 
-        // Попробуем восстановить прогресс
-        const sessionId = res[0]?.session_id
-        if (sessionId) {
-          const progressRes = await api.get(`/api/progress/${sessionId}/`)
-          setProgress(progressRes.data)
+        // // Попробуем восстановить прогресс
+        // const sessionId = res[0]?.session_id
+        // if (sessionId) {
+        //   const progressRes = await api.get(`/api/progress/${sessionId}/`)
+        //   setProgress(progressRes.data)
 
-          // Если прогресс ещё не 100%, возобновим polling
-          if (progressRes.data.percent < 100) {
-            const intervalId = setInterval(async () => {
-              try {
-                const res = await api.get(`/api/progress/${sessionId}/`)
-                setProgress(res.data)
+        //   // Если прогресс ещё не 100%, возобновим polling
+        //   if (progressRes.data.percent < 100) {
+        //     const intervalId = setInterval(async () => {
+        //       try {
+        //         const res = await api.get(`/api/progress/${sessionId}/`)
+        //         setProgress(res.data)
 
-                if (res.data.percent >= 100) {
-                  clearInterval(intervalId)
-                  const updatedKeys = await fetchLastSessionKeys()
-                  setValidKeys(updatedKeys)
-                }
-              } catch (err) {
-                console.error('Ошибка получения прогресса', err)
-                clearInterval(intervalId)
-              }
-            }, 1000)
-          }
-        }
+        //         if (res.data.percent >= 100) {
+        //           clearInterval(intervalId)
+        //           const updatedKeys = await fetchLastSessionKeys()
+        //           setValidKeys(updatedKeys)
+        //         }
+        //       } catch (err) {
+        //         console.error('Ошибка получения прогресса', err)
+        //         clearInterval(intervalId)
+        //       }
+        //     }, 1000)
+        //   }
+        // }
       } catch (error) {
         toast.error(error.message)
       } finally {
@@ -162,7 +162,6 @@ const KeysCheck = () => {
                 <Form.Label htmlFor="basic-url">
                   Введите список ключей в формате: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
                   или XXXXXXXXXXXXXXXXXXXXXXXXX разделенные переносом строки.
-                  Максимум: 200 шт.
                 </Form.Label>
                 <InputGroup className="mb-2">
                   <InputGroup.Text>Список ключей:</InputGroup.Text>

@@ -53,7 +53,8 @@ const Login = () => {
       toast.success(`Вы успешно вошли, добро пожаловать! "${email}"`)
       navigate('/')
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Что то пошло не так.')
+      const message = err.response?.data?.detail || 'Something went wrong.'
+      toast.error(message)
     }
   }
 
@@ -69,8 +70,9 @@ const Login = () => {
 
       navigate('/')
       toast.success(`Вы успешно вошли, добро пожаловать!`)
-    } catch (error) {
-      toast.error(error || 'Что то пошло не так.')
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Something went wrong.'
+      toast.error(message)
     }
   }
 

@@ -4,7 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette import status
 from app.core.config import settings
-from app.api.v1 import auth, task_router, proxy_router, ms_account_router
+from app.api.v1 import auth, task_router, proxy_router, ms_account_router, key_router
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -13,6 +13,7 @@ app.include_router(auth.router)
 app.include_router(task_router.router)
 app.include_router(proxy_router.router)
 app.include_router(ms_account_router.router)
+app.include_router(key_router.router)
 
 app.add_middleware(
     CORSMiddleware,

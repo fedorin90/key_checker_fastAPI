@@ -32,7 +32,8 @@ const PasswordReset = () => {
       toast.info('Password changed successfully!')
       navigate('/')
     } catch (err) {
-      toast.error('Password reset failed')
+      const message = err.response?.data?.detail || 'Password reset failed'
+      toast.error(message)
     }
   }
 

@@ -8,6 +8,7 @@ import {
   Row,
   Col,
 } from 'react-bootstrap'
+import { toast } from 'react-toastify'
 import { api } from '../../api/axios'
 import { useContext } from 'react'
 import AuthContext from '../../context/AuthContext'
@@ -36,7 +37,8 @@ const MSManage = () => {
         loadAccounts()
       }
     } catch (err) {
-      console.error(err)
+      const message = err.response?.data?.detail || 'Faild to save'
+      toast.error(message)
     }
   }
 
@@ -46,8 +48,8 @@ const MSManage = () => {
       setNewAccount({ email: '', password: '', note: '' })
       loadAccounts()
     } catch (err) {
-      const message = err.response?.data?.detail || 'Ошибка загрузки аккаунтов'
-      alert(message)
+      const message = err.response?.data?.detail || 'Failed to dowload'
+      toast.error(message)
     }
   }
 

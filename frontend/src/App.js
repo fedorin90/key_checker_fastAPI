@@ -12,7 +12,7 @@ import Profile from './components/User/Profile'
 import ResendActivation from './components/User/ResendActivation'
 import TermsAndConditions from './components/TermsAndConditions'
 import PasswordReset from './components/User/PasswordReset'
-// import KeysCheck from './components/KeysCheck/KeysCheck'
+import KeysCheck from './components/KeysCheck/KeysCheck'
 import MSManage from './components/KeysCheck/MSManage'
 import Proxies from './components/KeysCheck/Proxies'
 
@@ -25,7 +25,7 @@ function App() {
           {/*Private urls */}
           <Route element={<PrivateRoute />}>
             <Route path="/profile" element={<Profile />} />
-            {/* <Route path="/keys-check" element={<KeysCheck />} /> */}
+            <Route path="/keys-check" element={<KeysCheck />} />
           </Route>
           {/* Staff urls */}
           <Route element={<StaffRoute />}>

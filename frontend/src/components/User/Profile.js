@@ -13,8 +13,9 @@ const Profile = () => {
       toast.info(
         'We have sent you an email with the link to reset your password.'
       )
-    } catch (error) {
-      toast.error('Error updating profile:', error)
+    } catch (err) {
+      const message = err.response?.data?.detail || 'Something went wrong.'
+      toast.error(message)
     }
   }
 

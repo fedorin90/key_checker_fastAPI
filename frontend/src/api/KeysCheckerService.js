@@ -1,13 +1,13 @@
 import { api } from './axios'
 
-const KEYS_API_URL = 'keys-checker/keys/'
+const KEYS_API_URL = 'keys/'
 
 export const fetchKeys = async () => {
   const response = await api.get(KEYS_API_URL)
   return response.data
 }
 export const fetchLastSessionKeys = async () => {
-  const response = await api.get(`${KEYS_API_URL}last-session/`)
+  const response = await api.get(`${KEYS_API_URL}last/`)
   return response.data
 }
 

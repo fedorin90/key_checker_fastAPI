@@ -18,9 +18,5 @@ class Key(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="keys")
 
-
-
-
     def __repr__(self):
         return self.key
-    

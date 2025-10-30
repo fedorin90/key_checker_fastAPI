@@ -1,7 +1,6 @@
-# app/api/auth.py
 import requests
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.user import UserCreate, UserOut, TokenOut, GoogleAuthIn, LoginIn, PasswordResetIn
@@ -9,12 +8,12 @@ from app.crud import user as crud_user
 from app.core.config import settings
 from app.core.security import create_access_token, create_activation_token, create_reset_token, verify_reset_token
 from app.core.db import get_db
+from app.api.deps import get_current_user
 from app.models.user import User
 from app.utils.email_utils import send_activation_email, send_password_reset_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 # ========== REGISTER ==========
@@ -44,6 +43,22 @@ async def login_json(data: LoginIn, db: AsyncSession = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer"}
 
 
+# ========== LOGIN SWAGER FOR DOCS==========
+@router.post("/login/form/", response_model=TokenOut, include_in_schema=True)
+async def login_form(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db)
+):
+    user = await crud_user.authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Inactive user")
+
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer"}
+
+
 # ========== GOOGLE LOGIN ==========
 @router.post("/google/", response_model=TokenOut)
 async def google_login(data: GoogleAuthIn, db: AsyncSession = Depends(get_db)):
@@ -63,23 +78,6 @@ async def google_login(data: GoogleAuthIn, db: AsyncSession = Depends(get_db)):
 
     token = create_access_token({"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer"}
-
-
-# ========== GET CURRENT USER ==========
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User:
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    user = await crud_user.get_user_by_id(db, int(user_id))
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return user
 
 
 # ========== LOGOUT ==========

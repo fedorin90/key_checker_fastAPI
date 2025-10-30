@@ -33,11 +33,7 @@ const Register = () => {
       toast.info(`Please confirm your email  "${email}"`)
       navigate('/login')
     } catch (err) {
-      const message =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        err.message ||
-        'Something went wrong'
+      const message = err.response?.data?.detail || 'Something went wrong.'
       toast.error(message)
     }
   }

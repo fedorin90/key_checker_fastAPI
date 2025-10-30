@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+
 import { Table, Button, Form, Container, Row, Col } from 'react-bootstrap'
 import { api } from '../../api/axios'
 import { useContext } from 'react'
@@ -25,8 +27,8 @@ const Proxies = () => {
       setNewProxy({ ip: '', port: '', username: '', password: '' })
       loadProxies()
     } catch (err) {
-      console.error(err)
-      alert('Ошибка при добавлении прокси')
+      const message = err.response?.data?.detail || 'Something went wrong.'
+      toast.error(message)
     }
   }
 
