@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - /api/.env
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+
+  backend:
+    build: ./api
+    container_name: fastapi-backend
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./api:/app
+    env_file:
+      - /api/.env
+    depends_on:
+      - redis
+      - db
+    shm_size: '1gb'
+
+  celery:
+    build: ./api
+    container_name: celery-worker
+    command: celery -A app.core.celery_app worker --pool=solo --loglevel=info
+    volumes:
+      - ./api:/app
+    env_file:
+      - /api/.env
+    depends_on:
+      - redis
+      - db
+    shm_size: '1gb'
+
+  frontend:
+    build: ./frontend
+    container_name: react-frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend:/app
+    stdin_open: true
+    tty: true
+volumes:
+  postgres_data:

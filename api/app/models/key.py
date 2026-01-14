@@ -8,8 +8,8 @@ class Key(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     key = Column(String(25))
-    checked = Column(Boolean, default=False)
-    is_activated = Column(Boolean, default=False, nullable=True)
+    checked = Column(Boolean, default=False, nullable=True)
+    is_activated = Column(Boolean, nullable=True)
     redeemed_by = Column(String, nullable=True)
     redeemed_date = Column(DateTime, nullable=True)
     error_code = Column(String, nullable=True)

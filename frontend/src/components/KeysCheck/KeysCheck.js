@@ -15,11 +15,7 @@ import {
   ProgressBar,
 } from 'react-bootstrap'
 import { api } from '../../api/axios'
-import {
-  createKeys,
-  checkKeys,
-  fetchLastSessionKeys,
-} from '../../api/KeysCheckerService'
+import { createKeys, fetchLastSessionKeys } from '../../api/KeysCheckerService'
 
 const KeysCheck = () => {
   const [input, setInput] = useState('')
@@ -28,6 +24,7 @@ const KeysCheck = () => {
   const [loading, setLoading] = useState(true)
   const [progress, setProgress] = useState({ total: 0, checked: 0, percent: 0 })
   const [showOnlyNotActivated, setShowOnlyNotActivated] = useState(false)
+  const [taskStatus, setTaskStatus] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,7 +32,6 @@ const KeysCheck = () => {
     setLoading(true)
 
     const lines = input.split('\n')
-
     const cleaned = lines
       .map((line) =>
         line
@@ -44,12 +40,6 @@ const KeysCheck = () => {
           .trim()
       )
       .filter((key) => key.length === 25)
-
-    // if (cleaned.length > 200) {
-    //   setError('Превышен лимит: максимум 200 ключей.')
-    //   setLoading(false)
-    //   return
-    // }
 
     if (cleaned.length === 0) {
       setError('Нет ни одного корректного ключа.')
@@ -61,10 +51,9 @@ const KeysCheck = () => {
 
     try {
       const res = await createKeys(keyObjects)
-
       setValidKeys(res)
-    } catch (error) {
-      toast.error(error.message)
+    } catch (err) {
+      toast.error(err.message)
     } finally {
       setLoading(false)
     }
@@ -75,34 +64,31 @@ const KeysCheck = () => {
       const sessionId = validKeys[0]?.session_id
       if (!sessionId) return
 
-      await checkKeys(sessionId)
-
-      // Запускаем опрос прогресса
-      let intervalId = setInterval(async () => {
+      // единый endpoint /check_and_progress
+      const intervalId = setInterval(async () => {
         try {
-          const res = await api.get(`/api/progress/${sessionId}/`)
-          setProgress(res.data)
-          // 🔁 обновляем список ключей при любом изменении прогресса
-          const updatedKeys = await fetchLastSessionKeys()
-          setValidKeys(updatedKeys)
+          const res = await api.get(`/check_and_progress/${sessionId}`)
+          const data = res.data
 
-          // Когда 100%, останавливаем опрос
-          if (res.data.percent >= 100) {
+          setTaskStatus(data.status)
+          setProgress({
+            total: data.total || 0,
+            checked: data.checked || 0,
+            percent: data.percent || 0,
+          })
+
+          if (data.status === 'SUCCESS' || data.status === 'FAILURE') {
             clearInterval(intervalId)
-
-            // Повторно загрузим актуальные ключи после завершения
             const updatedKeys = await fetchLastSessionKeys()
             setValidKeys(updatedKeys)
           }
         } catch (err) {
-          console.error('Ошибка получения прогресса', err)
+          console.error('Ошибка получения статуса', err)
           clearInterval(intervalId)
         }
       }, 1000)
-    } catch (error) {
-      toast.error(error.message)
-    } finally {
-      setLoading(false)
+    } catch (err) {
+      toast.error(err.message)
     }
   }
 
@@ -112,44 +98,17 @@ const KeysCheck = () => {
       try {
         const res = await fetchLastSessionKeys()
         setValidKeys(res)
-
-        // // Попробуем восстановить прогресс
-        // const sessionId = res[0]?.session_id
-        // if (sessionId) {
-        //   const progressRes = await api.get(`/api/progress/${sessionId}/`)
-        //   setProgress(progressRes.data)
-
-        //   // Если прогресс ещё не 100%, возобновим polling
-        //   if (progressRes.data.percent < 100) {
-        //     const intervalId = setInterval(async () => {
-        //       try {
-        //         const res = await api.get(`/api/progress/${sessionId}/`)
-        //         setProgress(res.data)
-
-        //         if (res.data.percent >= 100) {
-        //           clearInterval(intervalId)
-        //           const updatedKeys = await fetchLastSessionKeys()
-        //           setValidKeys(updatedKeys)
-        //         }
-        //       } catch (err) {
-        //         console.error('Ошибка получения прогресса', err)
-        //         clearInterval(intervalId)
-        //       }
-        //     }, 1000)
-        //   }
-        // }
-      } catch (error) {
-        toast.error(error.message)
+      } catch (err) {
+        toast.error(err.message)
       } finally {
         setLoading(false)
       }
     }
-
     getLastSessionKeys()
   }, [])
 
   return (
-    <Container fluid="md" className="my-5 ">
+    <Container fluid="md" className="my-5">
       <Card>
         <Row>
           <Col></Col>
@@ -159,9 +118,8 @@ const KeysCheck = () => {
                 Шаг 1 - Форматирование списка.
               </h3>
               <Form onSubmit={handleSubmit} className="mb-2">
-                <Form.Label htmlFor="basic-url">
+                <Form.Label>
                   Введите список ключей в формате: XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-                  или XXXXXXXXXXXXXXXXXXXXXXXXX разделенные переносом строки.
                 </Form.Label>
                 <InputGroup className="mb-2">
                   <InputGroup.Text>Список ключей:</InputGroup.Text>
@@ -176,24 +134,23 @@ const KeysCheck = () => {
                 <Button variant="primary" type="submit">
                   Продолжить <MdOutlineNavigateNext />
                 </Button>
-
                 {error && (
                   <Alert variant="danger" className="mt-3">
                     {error}
                   </Alert>
                 )}
-                {!loading &&
-                  Array.isArray(validKeys) &&
-                  validKeys.length > 0 && (
-                    <Alert variant="success" className="mt-3">
-                      Найдено корректных ключей: {validKeys.length}
-                    </Alert>
-                  )}
+                {!loading && validKeys.length > 0 && (
+                  <Alert variant="success" className="mt-3">
+                    Найдено корректных ключей: {validKeys.length}
+                  </Alert>
+                )}
               </Form>
+
               <h3 className="text-center m-5">Шаг 2 - Проверка ключей.</h3>
-              <Button variant="primary" type="submit" onClick={handleCheck}>
+              <Button variant="primary" onClick={handleCheck}>
                 Проверить <IoMdCheckboxOutline />
               </Button>
+
               <Form.Check
                 type="checkbox"
                 id="show-only-not-activated"
@@ -203,18 +160,33 @@ const KeysCheck = () => {
                 className="mt-4"
               />
 
-              {progress.total > 0 && (
+              {(taskStatus === 'STARTED' || taskStatus === 'PROGRESS') && (
                 <div className="my-3">
                   <p>
                     Проверено {progress.checked} из {progress.total} (
-                    {progress.percent}%)
+                    {progress.percent.toFixed(1)}%)
                   </p>
                   <ProgressBar
                     now={progress.percent}
-                    label={`${progress.percent}%`}
+                    label={`${progress.percent.toFixed(1)}%`}
                   />
                 </div>
               )}
+
+              {taskStatus && (
+                <Alert
+                  variant={
+                    taskStatus === 'SUCCESS'
+                      ? 'success'
+                      : taskStatus === 'FAILURE'
+                      ? 'danger'
+                      : 'info'
+                  }
+                >
+                  Статус задачи: {taskStatus}
+                </Alert>
+              )}
+
               <Table striped bordered hover responsive className="mt-2">
                 <thead>
                   <tr>
@@ -223,11 +195,8 @@ const KeysCheck = () => {
                     <th>Проверен</th>
                     <th>Активирован</th>
                     <th>Ошибка</th>
-                    {/* <th>Активирован на</th>
-                    <th>Дата активации</th> */}
                   </tr>
                 </thead>
-
                 <tbody>
                   {validKeys
                     .filter(
@@ -239,10 +208,14 @@ const KeysCheck = () => {
                         <td>{index + 1}</td>
                         <td>{item.key}</td>
                         <td>{item.checked ? 'Yes' : 'No'}</td>
-                        <td>{item.is_activated ? 'Yes' : 'No'}</td>
+                        <td>
+                          {item.is_activated === null
+                            ? '-'
+                            : item.is_activated
+                            ? 'Yes'
+                            : 'No'}
+                        </td>
                         <td>{item.error_code}</td>
-                        {/* <td>{item.redeemed_by ?? '—'}</td>
-                        <td>{item.redeemed_date ?? '—'}</td> */}
                       </tr>
                     ))}
                 </tbody>

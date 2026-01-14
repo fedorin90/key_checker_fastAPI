@@ -18,9 +18,7 @@ export const createKeys = async (keyObjects) => {
 }
 
 export const checkKeys = async (sessionId) => {
-  const session_id = { session_id: sessionId }
-  const response = await api.post('check-keys/', session_id)
-  console.log(response)
+  const response = await api.post(`check/${sessionId}`)
 
   return response.data
 }

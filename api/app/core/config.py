@@ -8,7 +8,10 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     DATABASE_URL: str
-    ALEMBIC_DATABASE_URL: str
+    DATABASE_SYNC_URL: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
@@ -30,6 +33,9 @@ class Settings(BaseSettings):
 
     CELERY_BROKER_URL: str
     CELERY_RESULT_BACKEND: str
+
+    REDIS_HOST: str
+    REDIS_PORT: int
 
 
 settings = Settings()

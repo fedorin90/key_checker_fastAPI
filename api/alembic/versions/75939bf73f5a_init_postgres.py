@@ -1,8 +1,8 @@
-"""change column Ip in proxy
+"""init postgres
 
-Revision ID: 3d104fbc10eb
-Revises: 0b929c33cca7
-Create Date: 2025-10-21 19:39:08.267890
+Revision ID: 75939bf73f5a
+Revises: 
+Create Date: 2026-01-13 18:02:38.466511
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '3d104fbc10eb'
-down_revision: Union[str, Sequence[str], None] = '0b929c33cca7'
+revision: str = '75939bf73f5a'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -33,6 +33,16 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_proxies_id'), 'proxies', ['id'], unique=False)
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('hashed_password', sa.String(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('is_staff', sa.Boolean(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_table('MS_accounts',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
@@ -71,6 +81,9 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_MS_accounts_id'), table_name='MS_accounts')
     op.drop_index(op.f('ix_MS_accounts_email'), table_name='MS_accounts')
     op.drop_table('MS_accounts')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_table('users')
     op.drop_index(op.f('ix_proxies_id'), table_name='proxies')
     op.drop_table('proxies')
     # ### end Alembic commands ###

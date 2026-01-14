@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+import secrets
 from app.models.user import User
 from app.schemas.user import UserCreate
 from passlib.context import CryptContext
@@ -33,8 +34,11 @@ async def create_user(db: AsyncSession, user_in: UserCreate) -> User:
 
 
 async def create_user_google(db: AsyncSession, email: str) -> User:
+    hashed_password = pwd_context.hash(secrets.token_urlsafe(32))
+
     user = User(
         email=email,
+        hashed_password=hashed_password,
         is_active=True
     )
     db.add(user)
