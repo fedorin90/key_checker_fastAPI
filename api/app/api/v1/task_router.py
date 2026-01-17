@@ -4,12 +4,14 @@ from sqlalchemy import select, func
 from celery.result import AsyncResult
 from app.core.db import get_db
 from app.models.key import Key
+from app.models.user import User
 from app.core.config import settings
 from app.core.celery_app import celery
 from pydantic import BaseModel
 from app.tasks.check_keys_task import check_keys_task
 import redis
-import os
+from app.api.v1.auth import get_current_user
+
 
 router = APIRouter()
 
@@ -33,7 +35,7 @@ class ProgressResponse(BaseModel):
 
 
 @router.get("/check_and_progress/{session_id}", response_model=ProgressResponse)
-async def check_and_progress(session_id: str, db: AsyncSession = Depends(get_db)):
+async def check_and_progress(session_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Если таска ещё не запущена - создаём её.
     И возвращаем прогресс: task_id, status, checked, total, percent.
@@ -56,13 +58,14 @@ async def check_and_progress(session_id: str, db: AsyncSession = Depends(get_db)
 
     # Получаем прогресс из базы
     total_result = await db.execute(
-        select(func.count(Key.id)).where(Key.session_id == session_id) # pylint: disable=not-callable
+        select(func.count(Key.id)).where(Key.session_id == session_id, Key.user_id == current_user.id) # pylint: disable=not-callable
     )
     total = total_result.scalar_one_or_none() or 0
 
     checked_result = await db.execute(
         select(func.count(Key.id)).where( # pylint: disable=not-callable
             Key.session_id == session_id,
+            Key.user_id == current_user.id,
             Key.checked.is_(True),
         )
     )
